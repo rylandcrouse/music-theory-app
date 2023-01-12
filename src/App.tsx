@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import * as music from "./constants/notes";
 import Test from './views/test/Test';
 
 function App() {
