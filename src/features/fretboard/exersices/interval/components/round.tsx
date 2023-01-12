@@ -51,12 +51,10 @@ const FBIntervalRoundComponent = ({round}: {round: FBIntervalRound}) => {
         {
             <FretboardComponent layerMap={getLayerMap()} ></FretboardComponent>
         }
-        {/* <button onClick={() => {setRound(new FBIntervalRound(options)); setRevealed(false)}}>Next</button> */}
-        {/* <button onClick={() => setRevealed(true)}>{revealed ? round.intervals.hidden[0].interval.shorthand : "?"}</button> */}
         <div style={{display: 'flex'}}>
             {
                 round.options.hiddenIntervals.map(interval =>                     
-                    (<span><CircleButton onClick={() => round.guess(interval)}>{Intervals[interval].shorthand}</CircleButton></span>)
+                    (<span key={interval}><CircleButton onClick={() => round.guess(interval)}>{Intervals[interval].shorthand}</CircleButton></span>)
                 )
 
             }
