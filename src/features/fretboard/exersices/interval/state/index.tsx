@@ -1,7 +1,10 @@
-import { Interval, Intervals, noteNumberValues } from "../../../../../../constants/notes";
-import { MusicKey, NoteNumber } from "../../../../../music/music";
-import { IntervalMap, Tuning } from "../../../../fbtypes";
-import { FBNode, KeyedFretboard, KeyedFretboardParams } from "../../../../fretboard";
+import { Interval, Intervals, noteNumberValues } from "../../../../../constants/notes";
+import { MusicKey, NoteNumber } from "../../../../music/music";
+import { IntervalMap, Tuning } from "../../../fbtypes";
+import { FBNode, KeyedFretboard, KeyedFretboardParams } from "../../../fretboard";
+import { action, makeAutoObservable } from "mobx"
+
+
 
 interface FBIntervalExerciseOptions  {
     seconds: number;
@@ -38,15 +41,23 @@ export class FBIntervalRound {
     // guessingNodeCoords: [];
     fretboard: KeyedFretboard;
     options: FBIntervalExerciseOptions;
-    guessed: boolean = false;
-    correct: boolean | undefined;
 
+    _state = {
+        guessed: false,
+        correct: false
+    }
+    
     intervals: RoundIntervals = {
         given: [],
         hidden: [],
     };
 
-    constructor(options: FBIntervalRoundParams, onUpdate?: Function) {
+    // onUpdate: Function;
+    next: Function;
+    onGuess: Function;
+    
+
+    constructor(options: FBIntervalRoundParams, next: Function, onGuess: Function) {
         this.options = options;
         // this.setFretboard(this.options.keynotes, ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']);
         this.fretboard = new KeyedFretboard({
@@ -55,12 +66,19 @@ export class FBIntervalRound {
             frets: 18,
             tuning: ['E2', 'A2', 'D3', 'G3', 'B3', 'E4']
         })
-
+        this.next = next;
+        this.onGuess = onGuess;
+        // this.onUpdate = onUpdate ? () => onUpdate(this) : () => null;
         this.setIntervals()
+
+        makeAutoObservable(this)
     }
 
-    handleNodeClick = (stringIndex: number, fretIndex: number) => () => {
-
+    guess = (interval: number) => {
+        this._state.guessed = true;
+        this._state.correct = (this.intervals.hidden[0].interval.semitones == interval);
+        this.onGuess(this._state.correct);
+        if (this._state.correct) this.next();
     }
 
     setFretboard = (keynotes: NoteNumber[], tuning: Tuning) => {
@@ -94,10 +112,6 @@ export class FBIntervalRound {
         const possibleHiddenNodes = this.fretboard.getNodes([distanceFilter, (node) => node != startingNode, getNodeIntervalFilter(this.options.hiddenIntervals)]);
         const hiddenInterval = getRandomFromArray(possibleHiddenNodes);
 
-        // console.log(this.fretboard.intervalMap[startingNode.stringIndex][startingNode.fretIndex],
-        //     this.fretboard.intervalMap[hiddenInterval.stringIndex][hiddenInterval.fretIndex],
-        // )
-
         this.intervals.hidden.push({
             coords: [hiddenInterval.stringIndex, hiddenInterval.fretIndex],
             interval: Intervals[this.fretboard.intervalMap[hiddenInterval.stringIndex][hiddenInterval.fretIndex][1] % 12]
@@ -106,58 +120,64 @@ export class FBIntervalRound {
 
 
     }
-
-    getLayerMap = () => {
-        
-    }
-
-
-    // constructor(givenNodeCoords: [number, number][], guessingNodeCoords: [number, number]) {
-
-    // }
-
-    getNodeList = () => {
-
-    }
-
-    start() {
-        
-    }
 }
 
 
 // Interval
 class FBIntervalExersice {
-    currentRound?: FBIntervalRound;
+    // this.onUpdate(v);
+    currentRound: FBIntervalRound | null = null;
     options: FBIntervalExerciseOptions;
-    // givenIntervals: number[];
-    // hiddenIntervals: number[];
-    // maxStringDistance = 4;
-    // maxFretDistance = 5;
-    // key?: MusicKey;
+    secondsLeft: number;
+
+    score = {
+        guesses: 0,
+        correct: 0
+    }
 
     constructor(options: FBIntervalExerciseOptions) {
-        this.options = {
-            seconds: 200,
-            numRounds: 5,
-            givenIntervals: [0, 1, 3, 5],
-            hiddenIntervals: [3, 6, 9, 10, 11],
-            maxStringDistance: 3,
-            maxFretDistance: 3,
-            keynotes: noteNumberValues
-        }
-        // super(strings, frets, tuning);
+        this.options = options;
         const { givenIntervals, hiddenIntervals } = options;
-
-        this.currentRound = new FBIntervalRound(this.options);
+        this.secondsLeft = options.seconds;
+        makeAutoObservable(this);
+    }
+    
+    onGuess(isCorrect: boolean) {
+        if (!this.secondsLeft) return;
+        this.score.guesses += 1;
+        this.score.correct += isCorrect ? 1 : 0;
+        console.log(this.score);
     }
 
-    rootIntervalFilter = () => {
-
+    next() {
+        this.currentRound = this.generateRound();
     }
 
-    generateRounds = () => {
+    end() {
+        clearInterval(this._timerIntervalSet);
+        this.currentRound = null;
+    }
 
+    _timerIntervalSet?: ReturnType<typeof setInterval>;
+
+    start() {
+        // action(() => {
+            this.score = {
+                guesses: 0,
+                correct: 0
+            }
+            this.secondsLeft = this.options.seconds;
+            console.log(this.secondsLeft)
+            this.currentRound = this.generateRound();
+            this._timerIntervalSet = setInterval(() => {
+                if (this.secondsLeft > 0) this.secondsLeft--;
+                else this.end()
+            }, 1000)
+        // })
+    }
+
+    generateRound = (): FBIntervalRound => {
+        return new FBIntervalRound(this.options, () => this.next(), (isCorrect: boolean) => this.onGuess(isCorrect));
     }
 }
 

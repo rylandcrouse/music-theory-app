@@ -26,7 +26,7 @@ export class Interval {
 }
 
 export const Intervals = [
-    new Interval('Unison', 'P1', 0),
+    new Interval('Unison', 'R', 0),
     new Interval('Minor Second', 'm2', 1),
     new Interval('Major Second', 'M2', 2),
     new Interval('Minor Third', 'm3', 3),

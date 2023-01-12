@@ -3,9 +3,10 @@ import styled from "styled-components";
 export const StyledInterval = styled.div`
     background-color: #8a9fed;
     border-radius: 50%;
-    height: 38px;
-    width: 38px;
-    
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 1:1;
+
     display: flex;
     flex-direction: column;
     align-items: center;

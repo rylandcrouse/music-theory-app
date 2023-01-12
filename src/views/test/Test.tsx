@@ -3,12 +3,12 @@ import Interval from '../../components/interval/Interval'
 import { notes } from './../../constants/notes'
 
 import player from '../../features/player'
-import {now} from 'tone';
+import {now, PluckSynth, MetalSynth, Oscillator} from 'tone';
 import { getNoteNumber } from '../../features/music/index'
 import { Pitch } from '../../features/music/pitch'
 import guitar, { KeyedFretboard } from '../../features/fretboard/fretboard'
 import Fretboard from '../../features/fretboard/components/fretboard/Fretboard'
-import IntervalExcersizeComponent from '../../features/fretboard/components/exersices/interval';
+import IntervalExcersizeComponent from '../../features/fretboard/exersices/interval/components';
 
 const Test = () => {
   // const noteOctaveTupleArray = makeNoteOctaveTupleArray(['C', 2], ['B', 4]);
@@ -25,7 +25,7 @@ const Test = () => {
   // const smap = fb.smap;
   Pitch.getIntervalFromTuples([3,2], [6,3]);
   // Pitch.getIntervalFromTuples([3,2], [6,3]);
-  
+  const synth = new Oscillator().toDestination()
   return (
     <div style={{"width": "100vw", "height": "100vh",
       "display": "flex", "flexDirection": "column",
@@ -33,7 +33,8 @@ const Test = () => {
     }}>
         {/* <Fretboard fretboard={smap}></Fretboard> */}
         <IntervalExcersizeComponent/>
-        <Interval intervalShorthand='M3' numFromRoot={4} intervalLongform='oooo'></Interval>
+        {/* <button onClick={() => synth.('C#3', '4n', now())}>play</button> */}
+        {/* <Interval intervalShorthand='M3' numFromRoot={4} intervalLongform='oooo'></Interval> */}
       </div>
   )
 }
