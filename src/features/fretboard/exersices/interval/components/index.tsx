@@ -1,18 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext } from 'react'
 import { noteNumberValues } from '../../../../../constants/notes';
-import Fretboard, { KeyedFretboard } from '../../../fretboard'
-import FBNote, { FBNodeLayers } from '../../../components/fb-node/FBNote';
-import FBNodePin from '../../../components/fb-node/indicators/selected/FBNodePin';
-import FretboardComponent from '../../../components/fretboard/Fretboard';
-import FBIntervalGame, { FBIntervalRound } from '../state';
+import FBIntervalGame from '../state';
 import FBIntervalRoundComponent from './round';
 import { observer } from "mobx-react"
+import styled from 'styled-components';
 
 const options = {
     seconds: 400,
     numRounds: 5,
-    // givenIntervals: [0, 2, 4, 5, 7, 9, 11],
-    // hiddenIntervals: [0, 2, 4, 5, 7, 9, 11],
     givenIntervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     hiddenIntervals: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     maxStringDistance: 6,
@@ -20,6 +15,26 @@ const options = {
     keynotes: noteNumberValues,
     modes: ['Ionian']
 }
+
+const Button = styled.div`
+  height: 30px;
+  background-color: black;
+  border-radius: 15px;
+  color: white;
+
+  display: inline-flex;
+  align-items: center;
+  margin: 1rem;
+
+  padding: .05em .8em;
+
+  &:hover {
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    cursor: pointer;
+  }
+`;
 
 export const FBIntervalExerciseContext = createContext<FBIntervalGame | null>(null);
 const game = new FBIntervalGame(options);
@@ -29,7 +44,7 @@ const IntervalExerciseComponent = observer(() => {
 
     return game && (
         <div>
-          <button onClick={() => !game.currentRound ? game.start() : game.end()}>{!game.currentRound ? "Begin" : "Quit"}</button>
+          <Button onClick={() => !game.currentRound ? game.start() : game.end()}>{!game.currentRound ? "Begin" : "Quit"}</Button>
             <div>{game.currentRound && game.secondsLeft}</div>
             <div>{game.score.correct} / {game.score.guesses}</div>
           {

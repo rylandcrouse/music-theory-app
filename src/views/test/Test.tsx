@@ -31,10 +31,7 @@ const Test = () => {
       "display": "flex", "flexDirection": "column",
       "justifyContent": "center", "alignItems": "center"
     }}>
-        {/* <Fretboard fretboard={smap}></Fretboard> */}
         <IntervalExcersizeComponent/>
-        {/* <button onClick={() => synth.('C#3', '4n', now())}>play</button> */}
-        {/* <Interval intervalShorthand='M3' numFromRoot={4} intervalLongform='oooo'></Interval> */}
       </div>
   )
 }
